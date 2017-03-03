@@ -18,9 +18,9 @@ i.createExperiment:{[args]
    useResult:t[`use] . params;
    runexperiment:rand[1.]<=t`freq;
    if[runexperiment;
-	  tryResult:t[`try] . params;
-	  logger i.getLoggerMessage[ind;params;useResult;tryResult]
-	  ];
+      tryResult:t[`try] . params;
+      logger i.getLoggerMessage[ind;params;useResult;tryResult]
+      ];
    useResult
    };
 
