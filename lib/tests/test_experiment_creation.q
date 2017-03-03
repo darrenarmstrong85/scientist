@@ -74,11 +74,11 @@ cleanup:{
       should["allow us to specify a logging function"] {
          `ind1`n1 mock' .scientist.new `use`try!(use;try);
          n1[5];
-         last[logged] mustmatch "Experiment ",string[ind1]," called with parameters: 5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
+         last[logged] mustmatch "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
 
          `ind2`n2 mock' .scientist.new `use`try!(use;use);
          n2[10];
-         last[logged] mustmatch "Experiment ",string[ind2]," called with parameters: 10.  Result: matched";
+         last[logged] mustmatch "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
          };
       };
    };
