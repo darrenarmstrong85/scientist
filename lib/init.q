@@ -11,7 +11,7 @@ i.getLoggerMessage:{[id;a;u;t]
    "Experiment ", string[id], " called with parameters: ",(-3!a),".  Result: ", $[u~t;"matched";"did not match.  Expected value: ", (-3!u), ".  Experiment value: ", (-3!t)]
    }
 
-i.createExperiment:{[args]
+i.runExperiment:{[args]
    ind:args@1;
    params:raze (),2 _ args;
    t:.scientist.try@ind;
@@ -25,7 +25,7 @@ i.createExperiment:{[args]
    };
 
 / arg list contains a sentinel as first argument to prevent unintended list collapse
-createExperiment:{[ind] ('[;]) over (i.createExperiment;(::;ind;);enlist)}
+createExperiment:{[ind] ('[;]) over (i.runExperiment;(::;ind;);enlist)}
 
 new:{[p_opts]
    opts:defaults.new.opts,p_opts;
