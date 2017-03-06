@@ -93,8 +93,8 @@ cleanup:{
    after cleanup;
 
    should["only allow frequencies in range 0 < f <= 1 if we use frequency-based default"] {
-      `enabler mock .scientist.defaults.enablers.frequency[0.];
-      mustthrow["invalid frequency specified: must be range 0 < x <= 1";] each {.scientist.new`use`try`enabler!(use;try;enabler)}
+      `enablers mock .scientist.defaults.enablers.frequency@/:(0.; 1.0+epsilon:2 xexp -43);
+      mustthrow["invalid frequency specified: must be range 0 < x <= 1";] each (.scientist.new;) each flip `use`try`enabler!(use;try;enablers)
       };
 
    should["call try function according to frequency specified"] {

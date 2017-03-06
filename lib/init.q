@@ -3,7 +3,7 @@
 defaults.new.opts:`use`try`enabler!(::;::;{[stage;params]1b});
 logger:defaults.logger:{};
 defaults.enablers.frequency:{[freq;stage;params]
-   if[freq=0.;'"invalid frequency specified: must be range 0 < x <= 1"];
+   if[any (freq=0.;freq>1.);'"invalid frequency specified: must be range 0 < x <= 1"];
    rand[1.]<=freq
    };
 
