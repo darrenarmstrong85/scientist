@@ -33,7 +33,7 @@ cleanup:{
       eval[(n;1)] musteq eval (use;1);
       };
 
-   should["always call both funcs when no `freq specified"] {
+   should["always call both funcs when no enabler specified"] {
       n[5];
       .m.x musteq 15;
       .m.y musteq 25;
@@ -83,7 +83,7 @@ cleanup:{
       };
    };
 
-.tst.desc["Freq specification"] {
+.tst.desc["Enabler specification"] {
    before {
       `.m.use`.m.try mock' 0;
       `use mock {.m.use+:1; .m.x:10+x; .m.x};
@@ -92,17 +92,46 @@ cleanup:{
 
    after cleanup;
 
-   should["only allow 0 < freq <= 1 if specified"] {
-      `freq mock 0.;
-      mustthrow["invalid: freq";] each {.scientist.new`use`try`freq!(use;try;freq)}
+   should["only allow frequencies in range 0 < f <= 1 if we use frequency-based default"] {
+      `enabler mock .scientist.defaults.enablers.frequency[0.];
+      mustthrow["invalid frequency specified: must be range 0 < x <= 1";] each {.scientist.new`use`try`enabler!(use;try;enabler)}
       };
 
-   should["call try function according to freq specified"] {
-      `freq mock 0.1;
-      `n mock .scientist.new[`use`try`freq!(use;try;freq)][`func];
+   should["call try function according to frequency specified"] {
+      `enabler mock .scientist.defaults.enablers.frequency[0.1];
+      `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
       times:2500;
       do[times; n 1];
       .m.use musteq times;
       .m.try mustwithin 0.09 0.11*times;
       };
+
+   should["allow user to specify their own enabler function"] {
+	  `enabler mock {[stage;params]0b};
+	  `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
+	  n 1;
+	  .m.use musteq 1;
+	  .m.try musteq 0;
+	  };
+
+   alt {
+	  before {
+		 `unsetEnv mock `unset;
+		 `.m.useEnv`.m.tryEnv mock' unsetEnv;
+		 `use mock {[env] `.m.useEnv set env};
+		 `try mock {[env] `.m.tryEnv set env};
+		 };
+
+	  after cleanup;
+
+	  should["allow user to specify function that examines arguments"] {
+		 `enabler mock {[state;params] env:first params; $[state=`init;1b;env=`dev]};
+		 `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
+		 n firstEnv:`prod;
+		 .m.useEnv musteq firstEnv;
+		 .m.tryEnv musteq unsetEnv;
+		 n secondEnv:`dev;
+		 .m[`useEnv`tryEnv] musteq' secondEnv;
+		 };
+	  };
    };
