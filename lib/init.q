@@ -11,21 +11,33 @@ experiments:enlist[0N]!enlist defaults.new.opts;
 
 setLogger:{logger::x}
 
-i.getLoggerMessage:{[id;a;u;t]
-   s:"Experiment ", string[id], " called with parameters: ", (-3!a), ".  Result: ";
-   s,:$[u~t;
+i.getLoggerMessageStub:{[id;params]
+   "Experiment ", string[id], " called with parameters: ", (-3!params), "."
+   };
+
+i.getLoggerMessage:{[ind;params;useValue;tryValue]
+   s:i.getLoggerMessageStub[ind;params];
+   s,:"  Result: ";
+   s,:$[useValue~tryValue;
       "matched";
-      "did not match.  Expected value: ", (-3!u), ".  Experiment value: ", (-3!t)
+      "did not match.  Expected value: ", (-3!useValue), ".  Experiment value: ", (-3!tryValue)
       ];
    :s
    }
+
+i.getTryErrorMessage:{[ind;params;errorSignal]
+   i.getLoggerMessageStub[ind;params], "  Threw error: '", errorSignal, "'"
+   };
 
 i.experimentRunner:{[dummy;ind;params]
    t:experiments@ind;
    useResult:t[`use] . params;
    if[t[`enabler][`preExperiment;params];
-      tryResult:t[`try] . params;
-      logger i.getLoggerMessage[ind;params;useResult;tryResult]
+      trySuccess:first tryResult:.[{(1b;x . y)};(t[`try];params);{(0b;x)}];
+      logger $[trySuccess;
+         i.getLoggerMessage[ind;params;useResult;last tryResult];
+         i.getTryErrorMessage[ind;params;last tryResult]
+         ]
       ];
    useResult
    };
