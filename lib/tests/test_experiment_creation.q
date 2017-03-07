@@ -81,6 +81,34 @@ cleanup:{
          last[logged] mustmatch "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
          };
       };
+
+   alt {
+      before {
+         `.m.useSucceded`.m.trySucceded mock\: 0b;
+         `errString mock "throwAnError";
+         `use mock {[p1] .m.useSucceded:1b};
+		 `errorThrower mock {[p1] 'errString};
+         `try mock errorThrower;
+         `logged mock ();
+         .scientist.setLogger {logged,:enlist x};
+         };
+
+      after cleanup;
+
+      should["log when try function throws an error, but should not signal it"] {
+         `ind1`n1 mock' .scientist.new[`use`try!(use;try)][`ind`func];
+         `params mock 1;
+
+         mustnotthrow[();] n1,params;
+         .m.useSucceded musteq 1b;
+         .m.trySucceded musteq 0b;
+         last[logged] mustmatch "Experiment ", string[ind1], " called with parameters: ", (-3!enlist params), ".  Threw error: '", errString, "'";
+
+		 `useThrower mock errorThrower;
+		 `n2 mock .scientist.new[`use`try!(useThrower;try)][`func];
+		 mustthrow[errString;] n2,params;
+         };
+      };
    };
 
 .tst.desc["Enabler specification"] {
@@ -107,31 +135,31 @@ cleanup:{
       };
 
    should["allow user to specify their own enabler function"] {
-	  `enabler mock {[stage;params]0b};
-	  `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
-	  n 1;
-	  .m.use musteq 1;
-	  .m.try musteq 0;
-	  };
+      `enabler mock {[stage;params]0b};
+      `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
+      n 1;
+      .m.use musteq 1;
+      .m.try musteq 0;
+      };
 
    alt {
-	  before {
-		 `unsetEnv mock `unset;
-		 `.m.useEnv`.m.tryEnv mock' unsetEnv;
-		 `use mock {[env] `.m.useEnv set env};
-		 `try mock {[env] `.m.tryEnv set env};
-		 };
+      before {
+         `unsetEnv mock `unset;
+         `.m.useEnv`.m.tryEnv mock' unsetEnv;
+         `use mock {[env] `.m.useEnv set env};
+         `try mock {[env] `.m.tryEnv set env};
+         };
 
-	  after cleanup;
+      after cleanup;
 
-	  should["allow user to specify function that examines arguments"] {
-		 `enabler mock {[state;params] env:first params; $[state=`init;1b;env=`dev]};
-		 `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
-		 n firstEnv:`prod;
-		 .m.useEnv musteq firstEnv;
-		 .m.tryEnv musteq unsetEnv;
-		 n secondEnv:`dev;
-		 .m[`useEnv`tryEnv] musteq' secondEnv;
-		 };
-	  };
+      should["allow user to specify function that examines arguments"] {
+         `enabler mock {[state;params] env:first params; $[state=`init;1b;env=`dev]};
+         `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
+         n firstEnv:`prod;
+         .m.useEnv musteq firstEnv;
+         .m.tryEnv musteq unsetEnv;
+         n secondEnv:`dev;
+         .m[`useEnv`tryEnv] musteq' secondEnv;
+         };
+      };
    };
