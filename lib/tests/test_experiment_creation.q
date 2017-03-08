@@ -11,11 +11,17 @@
   the function passed to before block will work.
 \
 
-beforesimple:{[x;y] value string x} {
+qspecInit:{[x;y] value string x}
+
+beforesimpleNoCreate:qspecInit {
    `use mock {.m.x:10+x;.m.x};
    `try mock {.m.y:20+x;.m.y};
    `logged mock ();
    .scientist.setLogger {logged,:enlist x};
+   };
+
+beforesimple:qspecInit {
+   beforesimpleNoCreate[][];
    `n mock .scientist.new[`use`try!(use;try)][`func];
    };
 
@@ -109,6 +115,18 @@ cleanup:{
 		 mustthrow[errString;] n2,params;
          };
       };
+
+   alt {
+	  before beforesimpleNoCreate[];
+	  after cleanup;
+
+	  should["Allow user to specify per-experiment init function"] {
+		 `.m.isInitialized  mock 0b;
+		 `preInit mock {.m.isInitialized:1b};
+		 `n mock .scientist.new[`use`try`preInit!(use;try;preInit)][`func];
+		 .m.isInitialized musteq 1b;
+		 };
+	  };
    };
 
 .tst.desc["Enabler specification"] {
