@@ -117,16 +117,16 @@ cleanup:{
       };
 
    alt {
-	  before beforesimpleNoCreate[];
-	  after cleanup;
+      before beforesimpleNoCreate[];
+      after cleanup;
 
-	  should["Allow user to specify per-experiment init function"] {
-		 `.m.isInitialized  mock 0b;
-		 `preInit mock {.m.isInitialized:1b};
-		 `n mock .scientist.new[`use`try`preInit!(use;try;preInit)][`func];
-		 .m.isInitialized musteq 1b;
-		 };
-	  };
+      should["Allow user to specify per-experiment init function"] {
+         `.m.isInitialized  mock 0b;
+         `preInit mock {.m.isInitialized:1b};
+         `n mock .scientist.new[`use`try`preInit!(use;try;preInit)][`func];
+         .m.isInitialized musteq 1b;
+         };
+      };
    };
 
 .tst.desc["Enabler specification"] {
