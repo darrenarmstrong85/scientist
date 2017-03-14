@@ -1,1 +1,3 @@
-alias qspec="qq $QPATH/lib/qspec/app/spec.q"
+function qspec() {
+    rlwrap q $QPATH/lib/qspec/app/spec.q $@
+}
