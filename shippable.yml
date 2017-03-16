@@ -1,0 +1,20 @@
+---
+# The path for Xunit to output test reports
+env:
+  - XUNIT_FILE=$SHIPPABLE_BUILD_DIR/shippable/testresults/result.xml
+build:
+  ci:
+    - ln -s $SHIPPABLE_BUILD_DIR/lib $QPATH/scientist
+    - mkdir -pv $SHIPPABLE_BUILD_DIR/shippable/testresults
+    - "/q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > $XUNIT_FILE"
+    - "cat $XUNIT_FILE"
+  pre_ci:
+    - docker pull darrenarmstrong85/ubuntu-kdb-qspec:latest
+  pre_ci_boot:
+    darrenarmstrong85/ubuntu-kdb-qspec
+integrations:
+  docker:
+    - integrationName:docker_cloud
+      type:docker
+language: none
+
