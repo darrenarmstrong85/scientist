@@ -14,15 +14,31 @@
 qspecInit:{[x;y] value string x}
 
 beforesimpleNoCreate:qspecInit {
-   `use mock {.m.x:10+x;.m.x};
-   `try mock {.m.y:20+x;.m.y};
+   `use mock {.m.x:10+$[null[x]~1b;0;x];.m.x};
+   `try mock {.m.y:20+$[null[x]~1b;0;x];.m.y};
    `logged mock ();
    .scientist.setLogger {logged,:enlist x};
+
+   `errString mock "throwAnError";
+   `errors mock 0#enlist `useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(0b;0b;();0b;0b;());
+   `.scientist.onError mock {errors,:cols[errors]#x};
    };
 
 beforesimple:qspecInit {
    beforesimpleNoCreate[][];
    `n mock .scientist.new[`use`try!(use;try)][`func];
+   };
+
+beforesimpleNoCreateTryThrows:qspecInit {
+   beforesimpleNoCreate[][];
+   `use mock (::);
+   `try mock {'errString};
+   };
+
+beforesimpleNoCreateUseThrows:qspecInit {
+   beforesimpleNoCreate[][];
+   `use mock {'errString};
+   `try mock (::);
    };
 
 cleanup:{
@@ -132,8 +148,8 @@ cleanup:{
 .tst.desc["Enabler specification"] {
    before {
       `.m.use`.m.try mock' 0;
-      `use mock {.m.use+:1; .m.x:10+x; .m.x};
-      `try mock {.m.try+:1; .m.y:20+x; .m.y};
+      `use mock {.m.use+:1; .m.x:10+$[null[x]~1b;0;x]; .m.x};
+      `try mock {.m.try+:1; .m.y:20+$[null[x]~1b;0;x]; .m.y};
       };
 
    after cleanup;
@@ -180,4 +196,18 @@ cleanup:{
          .m[`useEnv`tryEnv] musteq' secondEnv;
          };
       };
+   };
+
+.tst.desc["Error handling specification"] {
+   before beforesimpleNoCreateTryThrows[];
+   after cleanup;
+
+   should["call default error handler when no default specified"] {
+	  `n mock .scientist.new[`use`try!(use;try)][`func];
+
+	  n 10;
+	  expected:`useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(1b;0b;10;1b;1b;errString);
+      count[errors] musteq 1;
+	  (key[expected]#last errors) mustmatch' expected;
+	  };
    };
