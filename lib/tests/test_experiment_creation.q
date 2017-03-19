@@ -109,7 +109,7 @@ cleanup:{
          `.m.useSucceded`.m.trySucceded mock\: 0b;
          `errString mock "throwAnError";
          `use mock {[p1] .m.useSucceded:1b};
-		 `errorThrower mock {[p1] 'errString};
+         `errorThrower mock {[p1] 'errString};
          `try mock errorThrower;
          `logged mock ();
          .scientist.setLogger {logged,:enlist x};
@@ -126,9 +126,9 @@ cleanup:{
          .m.trySucceded musteq 0b;
          last[logged] mustmatch "Experiment ", string[ind1], " called with parameters: ", (-3!enlist params), ".  Threw error: '", errString, "'";
 
-		 `useThrower mock errorThrower;
-		 `n2 mock .scientist.new[`use`try!(useThrower;try)][`func];
-		 mustthrow[errString;] n2,params;
+         `useThrower mock errorThrower;
+         `n2 mock .scientist.new[`use`try!(useThrower;try)][`func];
+         mustthrow[errString;] n2,params;
          };
       };
 
@@ -203,20 +203,20 @@ cleanup:{
    after cleanup;
 
    should["call default error handler when no default specified"] {
-	  `n mock .scientist.new[`use`try!(use;try)][`func];
+      `n mock .scientist.new[`use`try!(use;try)][`func];
 
-	  n 10;
-	  expected:`useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(1b;0b;10;1b;1b;errString);
+      n 10;
+      expected:`useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(1b;0b;10;1b;1b;errString);
       count[errors] musteq 1;
-	  (key[expected]#last errors) mustmatch' expected;
-	  };
+      (key[expected]#last errors) mustmatch' expected;
+      };
 
    should["allow user to specify unique error handler"] {
-	  `.m.errorHanlderCalled mock 0b;
-	  `myErrorHandler mock {.m.errorHanlderCalled:1b};
-	  `ind`n mock' .scientist.new[`use`try`onError!(use;try;myErrorHandler)][`ind`func];
+      `.m.errorHanlderCalled mock 0b;
+      `myErrorHandler mock {.m.errorHanlderCalled:1b};
+      `ind`n mock' .scientist.new[`use`try`onError!(use;try;myErrorHandler)][`ind`func];
 
-	  n 10;
-	  .m.errorHanlderCalled musteq 1b;
-	  };
+      n 10;
+      .m.errorHanlderCalled musteq 1b;
+      };
    };

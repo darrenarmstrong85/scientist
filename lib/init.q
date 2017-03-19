@@ -46,8 +46,8 @@ i.experimentRunner:{[dummy;ind;params]
    experimentResult,:`tryRan`tryThrew`tryResult!
       $[ t[`enabler][`preExperiment;params];
          .[{(1b;0b;x . y)};(t[`try];params);{(1b;1b;x)}];
-	     (0b;0b;())
-	     ];
+         (0b;0b;())
+         ];
 
    logger $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];
