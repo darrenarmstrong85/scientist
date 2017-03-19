@@ -117,7 +117,7 @@ cleanup:{
 
       after cleanup;
 
-      should["log when try function throws an error, but should not signal it"] {
+      should["log when try function throws an error, but should not signal it, and should re-throw when 'use' function throws"] {
          `ind1`n1 mock' .scientist.new[`use`try!(use;try)][`ind`func];
          `params mock 1;
 
