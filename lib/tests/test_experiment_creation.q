@@ -210,4 +210,13 @@ cleanup:{
       count[errors] musteq 1;
 	  (key[expected]#last errors) mustmatch' expected;
 	  };
+
+   should["allow user to specify unique error handler"] {
+	  `.m.errorHanlderCalled mock 0b;
+	  `myErrorHandler mock {.m.errorHanlderCalled:1b};
+	  `ind`n mock' .scientist.new[`use`try`onError!(use;try;myErrorHandler)][`ind`func];
+
+	  n 10;
+	  .m.errorHanlderCalled musteq 1b;
+	  };
    };

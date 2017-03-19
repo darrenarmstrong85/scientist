@@ -1,8 +1,8 @@
 \d .scientist
 
-defaults.new.opts:`use`try`preInit`enabler!(::;::;::;{[stage;params]1b});
+defaults.new.opts:`use`try`preInit`onError`enabler!(::;::;::;::;{[stage;params]1b});
 logger:defaults.logger:{};
-onError:{};
+onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
    if[any (freq=0.;freq>1.);'"invalid frequency specified: must be range 0 < x <= 1"];
    rand[1.]<=freq
@@ -65,7 +65,7 @@ new:{[p_opts]
    opts[`enabler][`init;(::)];
    opts[`preInit][];
    nextkey:1+0|max key experiments;
-   experiments[nextkey;`use`try`enabler]:opts`use`try`enabler;
+   experiments[nextkey;c]:opts[c:cols value experiments];
    newfunc:createExperiment[nextkey];
    `ind`func!(nextkey;newfunc)
    }
