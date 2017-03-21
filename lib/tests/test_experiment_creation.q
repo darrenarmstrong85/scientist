@@ -136,11 +136,19 @@ cleanup:{
       before beforesimpleNoCreate[];
       after cleanup;
 
-      should["Allow user to specify per-experiment init function"] {
+      should["Allow user to specify per-experiment functions"] {
          `.m.isInitialized  mock 0b;
          `preInit mock {.m.isInitialized:1b};
          `n mock .scientist.new[`use`try`preInit!(use;try;preInit)][`func];
          .m.isInitialized musteq 1b;
+         };
+
+      should["Allow user to specify per-experiment comparison function"] {
+         `.m.comp mock 0b;
+         `compare mock {[u;t] .m.comp:all .m[`x`y]~10 20};
+         `n mock .scientist.new[`use`try`compare!(use;try;compare)][`func];
+         n[];
+         .m.comp mustmatch 1b;
          };
       };
    };

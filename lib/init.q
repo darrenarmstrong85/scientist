@@ -1,6 +1,6 @@
 \d .scientist
 
-defaults.new.opts:`use`try`preInit`onError`enabler!(::;::;::;::;{[stage;params]1b});
+defaults.new.opts:`use`try`preInit`onError`compare`enabler!(::;::;::;::;~;{[stage;params]1b});
 logger:defaults.logger:{};
 onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
@@ -16,17 +16,32 @@ i.getLoggerMessageStub:{[id;params]
    "Experiment ", string[id], " called with parameters: ", (-3!params), "."
    };
 
+i.compareResults:{[ind;useResult;tryResult]
+   experiment:experiments@ind;
+   `comparisonRan`resultsMatch!.[{(1b;x[y;z])};(experiment`compare;useResult;tryResult);{[ind;err]i.logComparisonFailure[ind;err];00b}[ind;]]
+   };
+
+i.logComparisonFailure:{[ind;err]
+   logger "Comparison for index '", string[ind], "' failed.  Error was: '", err, "'"
+   };
+
 i.getLoggerMessage:{[ind;params;experimentResult]
+   experiment:experiments@ind;
    s:i.getLoggerMessageStub[ind;params];
-   s,:"  Result: ";
    useResult:experimentResult`useResult;
    tryResult:experimentResult`tryResult;
-   s,:$[useResult ~ tryResult;
-      "matched";
-      "did not match.  Expected value: ", (-3!useResult), ".  Experiment value: ", (-3!tryResult)
-      ];
-   :s
-   }
+
+   comparison:i.compareResults[ind;useResult;tryResult];
+   if[not comparison`comparisonRan; :(::)];
+
+   s,:"  Result: ";
+   :$[(resultsMatch:comparison`resultsMatch)~1b;
+      s,:"matched";
+      [  $[ resultsMatch~0b;
+            s,:"did not match.";
+            s,:"error in comparison function: should return boolean."];
+         s,:"  Expected value: ", (-3!useResult), ".  Experiment value: ", (-3!tryResult)]];
+   :s};
 
 i.getTryErrorMessage:{[ind;params;errorMessage]
    i.getLoggerMessageStub[ind;params], "  Threw error: '", errorMessage, "'"
