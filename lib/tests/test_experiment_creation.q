@@ -74,6 +74,26 @@ validateExperiment:qspecInit {[experiment;params]
       .m.y musteq 25;
       };
 
+
+   alt {
+      beforesimpleNoCreate[];
+      after cleanup;
+
+      should["allow user to specify beforeRun"] {
+         `eventSequence mock ([] event:`$(); params:() );
+         `enabler mock {[event;params] eventSequence,: (event;params); 1b};
+         `beforeRun mock {[params] eventSequence,:(`beforeRun;params)};
+         `ind`n mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;enabler)][`ind`func];
+         n[];
+
+         eventSequence mustmatch flip `event`params!flip(
+            (`init;          ::);
+            (`beforeRun;     enlist[::]);
+            (`preExperiment; enlist[::])
+            );
+         };
+      };
+
    alt {
       before {
          `.m.x`.m.y mock\: 1#.q;
