@@ -84,3 +84,7 @@ new:{[p_opts]
    newfunc:createExperiment[nextkey];
    `ind`func!(nextkey;newfunc)
    }
+
+getExperiment:{[ind]
+   $[ind in key experiments; experiments@ind; '"Could not find experiment: ",ind]
+   }
