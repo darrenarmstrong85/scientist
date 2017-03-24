@@ -17,7 +17,7 @@ i.getLoggerMessageStub:{[id;params]
    };
 
 i.compareResults:{[ind;useResult;tryResult]
-   experiment:experiments@ind;
+   experiment:getExperiment ind;
    `comparisonRan`resultsMatch!.[{(1b;x[y;z])};(experiment`compare;useResult;tryResult);{[ind;err]i.logComparisonFailure[ind;err];00b}[ind;]]
    };
 
@@ -26,7 +26,7 @@ i.logComparisonFailure:{[ind;err]
    };
 
 i.getLoggerMessage:{[ind;params;experimentResult]
-   experiment:experiments@ind;
+   experiment:getExperiment ind;
    s:i.getLoggerMessageStub[ind;params];
    useResult:experimentResult`useResult;
    tryResult:experimentResult`tryResult;
@@ -48,14 +48,14 @@ i.getTryErrorMessage:{[ind;params;errorMessage]
    };
 
 i.experimentFailure:{[ind;params;experimentResult]
-   experiment:experiments@ind;
+   experiment:getExperiment ind;
    errorHandler:$[not null specificErrorHandler:experiment`onError;specificErrorHandler;onError];
    errorHandler[experimentResult];
    i.getTryErrorMessage[ind;params;experimentResult`tryResult]
    };
 
 i.experimentRunner:{[dummy;ind;params]
-   t:experiments@ind;
+   t:getExperiment ind;
    experimentResult:1#.q;
    experimentResult,:`useRan`useThrew`useResult!.[{(1b;0b;x . y)};(t[`use];params);{(1b;1b;x)}];
    experimentResult,:`tryRan`tryThrew`tryResult!
