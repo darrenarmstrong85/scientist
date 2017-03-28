@@ -26,7 +26,7 @@ beforesimpleNoCreate:qspecInit {
 
 beforesimple:qspecInit {
    beforesimpleNoCreate[][];
-   `n mock .scientist.new[`use`try!(use;try)][`func];
+   `ind`n mock' .scientist.new[`use`try!(use;try)]`ind`func;
    };
 
 beforesimpleNoCreateTryThrows:qspecInit {
@@ -44,6 +44,19 @@ beforesimpleNoCreateUseThrows:qspecInit {
 cleanup:{
    delete from `.m;
    }
+
+isFunc:qspecInit {
+   type[x] mustin funcTypes:100 101 102 103 104 105 106 107 108 109 110 111 112h
+   };
+
+validateExperiment:qspecInit {[experiment;params]
+   type[experiment] musteq 99h;
+
+   requiredKeys:`use`try`preInit`onError`compare`enabler;
+   requiredKeys mustin key experiment;
+
+   isFunc[] each experiment`requiredKeys;
+   };
 
 .tst.desc["Scientist API"] {
    before beforesimple[];
@@ -136,11 +149,19 @@ cleanup:{
       before beforesimpleNoCreate[];
       after cleanup;
 
-      should["Allow user to specify per-experiment init function"] {
+      should["Allow user to specify per-experiment functions"] {
          `.m.isInitialized  mock 0b;
          `preInit mock {.m.isInitialized:1b};
          `n mock .scientist.new[`use`try`preInit!(use;try;preInit)][`func];
          .m.isInitialized musteq 1b;
+         };
+
+      should["Allow user to specify per-experiment comparison function"] {
+         `.m.comp mock 0b;
+         `compare mock {[u;t] .m.comp:all .m[`x`y]~10 20};
+         `n mock .scientist.new[`use`try`compare!(use;try;compare)][`func];
+         n[];
+         .m.comp mustmatch 1b;
          };
       };
    };
@@ -218,5 +239,14 @@ cleanup:{
 
       n 10;
       .m.errorHanlderCalled musteq 1b;
+      };
+   };
+
+.tst.desc["Scientist utility function API"] {
+   before beforesimple[];
+   after cleanup;
+
+   should["allow user to fetch an experiment already created"] {
+      validateExperiment[][.scientist.getExperiment ind;5];
       };
    };
