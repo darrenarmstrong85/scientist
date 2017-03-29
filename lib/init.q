@@ -1,6 +1,6 @@
 \d .scientist
 
-defaults.new.opts:`use`try`preInit`onError`compare`enabler!(::;::;::;::;~;{[stage;params]1b});
+defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`enabler!(::;::;::;::;::;~;{[stage;params]1b});
 logger:defaults.logger:{};
 onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
@@ -58,11 +58,15 @@ i.experimentRunner:{[dummy;ind;params]
    t:getExperiment ind;
    experimentResult:1#.q;
    experimentResult,:`useRan`useThrew`useResult!.[{(1b;0b;x . y)};(t[`use];params);{(1b;1b;x)}];
-   experimentResult,:`tryRan`tryThrew`tryResult!
-      $[ t[`enabler][`preExperiment;params];
+
+   experimentResult[`tryRan`tryThrew`tryResult]:
+   $[ t[`enabler][`preExperiment;params];
+      $[beforeRunResult:first @[{(1b;value x)};(t[`beforeRun];params);0b];
          .[{(1b;0b;x . y)};(t[`try];params);{(1b;1b;x)}];
          (0b;0b;())
          ];
+      (0b;0b;())
+      ];
 
    logger $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];

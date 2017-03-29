@@ -74,6 +74,38 @@ validateExperiment:qspecInit {[experiment;params]
       .m.y musteq 25;
       };
 
+
+   alt {
+      before {
+         beforesimpleNoCreate[][];
+         `eventSequence mock ([] event:`$(); src:`$(); params:() );
+         `enabler  mock  {[event;params] eventSequence,: (event;     `enabler         ;params); 1b};
+         `disabler mock  {[event;params] eventSequence,: (event;     `disabler        ;params); 0b};
+         `beforeRun mock {[params]       eventSequence,: (`beforeRun;`beforeRunChecker;params);   };
+
+         `ind1`n1 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;disabler)][`ind`func];
+         `ind2`n2 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;enabler )][`ind`func];
+         };
+
+      after cleanup;
+
+      should["allow user to specify beforeRun, only called if try function enabled"] {
+         params:enlist rand 0;
+         n1 . params;
+         n2 . params;
+
+         `expectedSequence mock flip cols[eventSequence]!flip(
+            (`init;          `disabler;         ::);
+            (`init;          `enabler;          ::);
+            (`preExperiment; `disabler;         params);
+            (`preExperiment; `enabler;          params);
+            (`beforeRun;     `beforeRunChecker; params)
+            );
+
+         eventSequence mustmatch expectedSequence;
+         };
+      };
+
    alt {
       before {
          `.m.x`.m.y mock\: 1#.q;
@@ -182,7 +214,7 @@ validateExperiment:qspecInit {[experiment;params]
 
    should["call try function according to frequency specified"] {
       `enabler mock .scientist.defaults.enablers.frequency[0.1];
-      `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
+      `ind`n mock' .scientist.new[`use`try`enabler!(use;try;enabler)][`ind`func];
       times:2500;
       do[times; n 1];
       .m.use musteq times;
