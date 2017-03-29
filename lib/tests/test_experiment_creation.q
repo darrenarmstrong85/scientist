@@ -76,21 +76,33 @@ validateExperiment:qspecInit {[experiment;params]
 
 
    alt {
-      beforesimpleNoCreate[];
+      before {
+         beforesimpleNoCreate[][];
+         `eventSequence mock ([] event:`$(); src:`$(); params:() );
+         `enabler  mock  {[event;params] eventSequence,: (event;     `enabler         ;params); 1b};
+         `disabler mock  {[event;params] eventSequence,: (event;     `disabler        ;params); 0b};
+         `beforeRun mock {[params]       eventSequence,: (`beforeRun;`beforeRunChecker;params);   };
+
+         `ind1`n1 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;disabler)][`ind`func];
+         `ind2`n2 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;enabler )][`ind`func];
+         };
+
       after cleanup;
 
-      should["allow user to specify beforeRun"] {
-         `eventSequence mock ([] event:`$(); params:() );
-         `enabler mock {[event;params] eventSequence,: (event;params); 1b};
-         `beforeRun mock {[params] eventSequence,:(`beforeRun;params)};
-         `ind`n mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;enabler)][`ind`func];
-         n[];
+      should["allow user to specify beforeRun, only called if try function enabled"] {
+         params:enlist rand 0;
+         n1 . params;
+         n2 . params;
 
-         eventSequence mustmatch flip `event`params!flip(
-            (`init;          ::);
-            (`beforeRun;     enlist[::]);
-            (`preExperiment; enlist[::])
+         `expectedSequence mock flip cols[eventSequence]!flip(
+            (`init;          `disabler;         ::);
+            (`init;          `enabler;          ::);
+            (`preExperiment; `disabler;         params);
+            (`preExperiment; `enabler;          params);
+            (`beforeRun;     `beforeRunChecker; params)
             );
+
+         eventSequence mustmatch expectedSequence;
          };
       };
 
@@ -202,7 +214,7 @@ validateExperiment:qspecInit {[experiment;params]
 
    should["call try function according to frequency specified"] {
       `enabler mock .scientist.defaults.enablers.frequency[0.1];
-      `n mock .scientist.new[`use`try`enabler!(use;try;enabler)][`func];
+      `ind`n mock' .scientist.new[`use`try`enabler!(use;try;enabler)][`ind`func];
       times:2500;
       do[times; n 1];
       .m.use musteq times;

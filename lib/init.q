@@ -60,12 +60,12 @@ i.experimentRunner:{[dummy;ind;params]
    experimentResult,:`useRan`useThrew`useResult!.[{(1b;0b;x . y)};(t[`use];params);{(1b;1b;x)}];
 
    experimentResult[`tryRan`tryThrew`tryResult]:
-   $[not beforeRunResult:first @[{(1b;value x)};(t[`beforeRun];params);0b];
-      (0b;0b;());
-      $[ t[`enabler][`preExperiment;params];
+   $[ t[`enabler][`preExperiment;params];
+      $[beforeRunResult:first @[{(1b;value x)};(t[`beforeRun];params);0b];
          .[{(1b;0b;x . y)};(t[`try];params);{(1b;1b;x)}];
          (0b;0b;())
-         ]
+         ];
+      (0b;0b;())
       ];
 
    logger $[not any experimentResult`useThrew`tryThrew;
