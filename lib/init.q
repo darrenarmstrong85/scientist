@@ -55,10 +55,14 @@ i.experimentFailure:{[ind;params;experimentResult]
    i.getTryErrorMessage[ind;params;experimentResult`tryResult]
    };
 
+i.runner.use:{[experimentResult;experiment;params]
+   `useRan`useThrew`useResult!.[{(1b;0b;x . y)};(experiment[`use];params);{(1b;1b;x)}]
+   };
+
 i.experimentRunner:{[dummy;ind;params]
    t:getExperiment ind;
    experimentResult:defaults.experimentResult;
-   experimentResult,:`useRan`useThrew`useResult!.[{(1b;0b;x . y)};(t[`use];params);{(1b;1b;x)}];
+   experimentResult,:i.runner.use[experimentResult;t;params];
 
    experimentResult[`tryRan`tryThrew`tryResult]:
    $[ t[`enabler][`preExperiment;params];
