@@ -59,19 +59,22 @@ i.runner.use:{[experiment;params]
    `useRan`useThrew`useResult!.[{(1b;0b;x . y)};(experiment[`use];params);{(1b;1b;x)}]
    };
 
+i.runner.try:{[experiment;params]
+   `tryRan`tryThrew`tryResult!
+   $[ experiment[`enabler][`preExperiment;params];
+      $[beforeRunResult:first @[{(1b;value x)};(experiment[`beforeRun];params);0b];
+         .[{(1b;0b;x . y)};(experiment[`try];params);{(1b;1b;x)}];
+         (0b;0b;::)
+         ];
+      (0b;0b;::)
+      ]
+   };
+
 i.experimentRunner:{[dummy;ind;params]
    t:getExperiment ind;
    experimentResult:defaults.experimentResult;
    experimentResult,:i.runner.use[t;params];
-
-   experimentResult[`tryRan`tryThrew`tryResult]:
-   $[ t[`enabler][`preExperiment;params];
-      $[beforeRunResult:first @[{(1b;value x)};(t[`beforeRun];params);0b];
-         .[{(1b;0b;x . y)};(t[`try];params);{(1b;1b;x)}];
-         (0b;0b;::)
-         ];
-      (0b;0b;::)
-      ];
+   experimentResult,:i.runner.try[t;params];
 
    logger $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];
