@@ -14,14 +14,22 @@
 qspecInit:{[x;y] value string x}
 
 beforesimpleNoCreate:qspecInit {
-   `use mock {.m.x:10+$[null[x]~1b;0;x];.m.x};
-   `try mock {.m.y:20+$[null[x]~1b;0;x];.m.y};
+   `use mock {.m.x:10+$[null[x]~1b;0;x]; .m.useSucceded:1b; .m.x};
+   `try mock {.m.y:20+$[null[x]~1b;0;x]; .m.trySucceded:1b; .m.y};
    `logged mock ();
-   .scientist.setLogger {[result] logged,:result[`messages]};
+   `.scientist.logger mock {[result] logged,:result[`messages]};
+
+   `.m.useSucceded`.m.trySucceded mock\: 0b;
 
    `errString mock "throwAnError";
+   `errorThrower mock {[p1] 'errString};
    `errors mock 0#enlist `useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(0b;0b;();0b;0b;());
    `.scientist.onError mock {errors,:cols[errors]#x};
+
+   `eventSequence mock ([] event:`$(); src:`$(); params:() );
+   `enabler  mock  {[event;params] eventSequence,: (event;     `enabler         ;params); 1b};
+   `disabler mock  {[event;params] eventSequence,: (event;     `disabler        ;params); 0b};
+   `beforeRun mock {[params]       eventSequence,: (`beforeRun;`beforeRunChecker;params);   };
    };
 
 beforesimple:qspecInit {
@@ -78,11 +86,6 @@ validateExperiment:qspecInit {[experiment;params]
    alt {
       before {
          beforesimpleNoCreate[][];
-         `eventSequence mock ([] event:`$(); src:`$(); params:() );
-         `enabler  mock  {[event;params] eventSequence,: (event;     `enabler         ;params); 1b};
-         `disabler mock  {[event;params] eventSequence,: (event;     `disabler        ;params); 0b};
-         `beforeRun mock {[params]       eventSequence,: (`beforeRun;`beforeRunChecker;params);   };
-
          `ind1`n1 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;disabler)][`ind`func];
          `ind2`n2 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;enabler )][`ind`func];
          };
@@ -135,7 +138,6 @@ validateExperiment:qspecInit {[experiment;params]
 
       after {
          cleanup[];
-         .scientist.setLogger .scientist.defaults.logger;
          };
 
       should["allow us to specify a logging function"] {
@@ -151,13 +153,9 @@ validateExperiment:qspecInit {[experiment;params]
 
    alt {
       before {
-         `.m.useSucceded`.m.trySucceded mock\: 0b;
-         `errString mock "throwAnError";
+         beforesimpleNoCreate[][];
          `use mock {[p1] .m.useSucceded:1b};
-         `errorThrower mock {[p1] 'errString};
          `try mock errorThrower;
-         `logged mock ();
-         .scientist.setLogger {[result] logged,:result[`messages]};
          };
 
       after cleanup;
