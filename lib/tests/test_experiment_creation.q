@@ -17,7 +17,7 @@ beforesimpleNoCreate:qspecInit {
    `use mock {.m.x:10+$[null[x]~1b;0;x];.m.x};
    `try mock {.m.y:20+$[null[x]~1b;0;x];.m.y};
    `logged mock ();
-   .scientist.setLogger {logged,:enlist x};
+   .scientist.setLogger {[result] logged,:result[`messages]};
 
    `errString mock "throwAnError";
    `errors mock 0#enlist `useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(0b;0b;();0b;0b;());
@@ -157,7 +157,7 @@ validateExperiment:qspecInit {[experiment;params]
          `errorThrower mock {[p1] 'errString};
          `try mock errorThrower;
          `logged mock ();
-         .scientist.setLogger {logged,:enlist x};
+         .scientist.setLogger {[result] logged,:result[`messages]};
          };
 
       after cleanup;

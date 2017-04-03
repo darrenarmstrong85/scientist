@@ -1,8 +1,8 @@
 \d .scientist
 
 defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`enabler!(::;::;::;::;::;~;{[stage;params]1b});
-defaults.experimentResult:``useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(::;0b;0b;::;0b;0b;::);
-logger:defaults.logger:{};
+defaults.experimentResult:``useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(::;0b;0b;::;0b;0b;::;());
+errorLogger:logger:defaults.logger:{[dict]};
 onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
    if[any (freq=0.;freq>1.);'"invalid frequency specified: must be range 0 < x <= 1"];
@@ -12,18 +12,19 @@ defaults.enablers.frequency:{[freq;stage;params]
 experiments:enlist[0N]!enlist defaults.new.opts;
 
 setLogger:{logger::x}
+setErrorLogger:{errorLogger::x}
 
 i.getLoggerMessageStub:{[id;params]
    "Experiment ", string[id], " called with parameters: ", (-3!params), "."
    };
 
+i.logComparisonFailure:{[ind;err]
+   errorLogger "Comparison for index '", string[ind], "' failed.  Error was: '", err, "'"
+   };
+
 i.compareResults:{[ind;useResult;tryResult]
    experiment:getExperiment ind;
    `comparisonRan`resultsMatch!.[{(1b;x[y;z])};(experiment`compare;useResult;tryResult);{[ind;err]i.logComparisonFailure[ind;err];00b}[ind;]]
-   };
-
-i.logComparisonFailure:{[ind;err]
-   logger "Comparison for index '", string[ind], "' failed.  Error was: '", err, "'"
    };
 
 i.getLoggerMessage:{[ind;params;experimentResult]
@@ -71,10 +72,13 @@ i.runner.try:{[experiment;params]
    };
 
 i.logResult:{[experimentResult;ind;params]
-   logger $[not any experimentResult`useThrew`tryThrew;
+   experimentResult[`messages],:
+   enlist $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];
       i.experimentFailure[ind;params;experimentResult]
       ];
+   logger experimentResult;
+   experimentResult
    };
 
 i.experimentRunner:{[dummy;ind;params]
