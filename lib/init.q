@@ -78,11 +78,11 @@ i.logResult:{[experimentResult;ind;params]
    };
 
 i.experimentRunner:{[dummy;ind;params]
-   t:getExperiment ind;
+   experiment:getExperiment ind;
 
    experimentResult:defaults.experimentResult;
-   experimentResult,:i.runner.use[t;params];
-   experimentResult,:i.runner.try[t;params];
+   experimentResult,:i.runner.use[experiment;params];
+   experimentResult,:i.runner.try[experiment;params];
 
    i.logResult[experimentResult;ind;params];
 
