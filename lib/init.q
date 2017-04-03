@@ -70,16 +70,21 @@ i.runner.try:{[experiment;params]
       ]
    };
 
-i.experimentRunner:{[dummy;ind;params]
-   t:getExperiment ind;
-   experimentResult:defaults.experimentResult;
-   experimentResult,:i.runner.use[t;params];
-   experimentResult,:i.runner.try[t;params];
-
+i.logResult:{[experimentResult;ind;params]
    logger $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];
       i.experimentFailure[ind;params;experimentResult]
       ];
+   };
+
+i.experimentRunner:{[dummy;ind;params]
+   t:getExperiment ind;
+
+   experimentResult:defaults.experimentResult;
+   experimentResult,:i.runner.use[t;params];
+   experimentResult,:i.runner.try[t;params];
+
+   i.logResult[experimentResult;ind;params];
 
    {$[x;'y;y]}. experimentResult`useThrew`useResult
    };
