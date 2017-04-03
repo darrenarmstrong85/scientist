@@ -16,8 +16,8 @@ qspecInit:{[x;y] value string x}
 beforesimpleNoCreate:qspecInit {
    `use mock {.m.x:10+$[null[x]~1b;0;x]; .m.useSucceded:1b; .m.x};
    `try mock {.m.y:20+$[null[x]~1b;0;x]; .m.trySucceded:1b; .m.y};
-   `logged mock ();
-   `.scientist.logger mock {[result] logged,:result[`messages]};
+   `logged mock ([]messages:enlist ());
+   `.scientist.logger mock {[result] `logged upsert cols[logged]#result};
 
    `.m.useSucceded`.m.trySucceded mock\: 0b;
 
@@ -143,11 +143,11 @@ validateExperiment:qspecInit {[experiment;params]
       should["allow us to specify a logging function"] {
          `ind1`n1 mock' .scientist.new `use`try!(use;try);
          n1[5];
-         last[logged] mustmatch "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
+         last[logged][`messages] mustmatch enlist "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
 
          `ind2`n2 mock' .scientist.new `use`try!(use;use);
          n2[10];
-         last[logged] mustmatch "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
+         last[logged][`messages] mustmatch enlist "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
          };
       };
 
@@ -167,7 +167,7 @@ validateExperiment:qspecInit {[experiment;params]
          mustnotthrow[();] n1,params;
          .m.useSucceded musteq 1b;
          .m.trySucceded musteq 0b;
-         last[logged] mustmatch "Experiment ", string[ind1], " called with parameters: ", (-3!enlist params), ".  Threw error: '", errString, "'";
+         last[logged][`messages] mustmatch enlist "Experiment ", string[ind1], " called with parameters: ", (-3!enlist params), ".  Threw error: '", errString, "'";
 
          `useThrower mock errorThrower;
          `n2 mock .scientist.new[`use`try!(useThrower;try)][`func];
