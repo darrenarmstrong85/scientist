@@ -16,7 +16,7 @@ qspecInit:{[x;y] value string x}
 beforesimpleNoCreate:qspecInit {
    `use mock {.m.x:10+$[null[x]~1b;0;x]; .m.useSucceded:1b; .m.x};
    `try mock {.m.y:20+$[null[x]~1b;0;x]; .m.trySucceded:1b; .m.y};
-   `logged mock ([]messages:enlist ());
+   `logged mock enlist `useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(0b;0b;::;0b;0b;::;());
    `.scientist.logger mock {[result] `logged upsert cols[logged]#result};
 
    `.m.useSucceded`.m.trySucceded mock\: 0b;
