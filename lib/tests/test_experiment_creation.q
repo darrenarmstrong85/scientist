@@ -16,8 +16,9 @@ qspecInit:{[x;y] value string x}
 beforesimpleNoCreate:qspecInit {
    `use mock {.m.x:10+$[null[x]~1b;0;x]; .m.useSucceded:1b; .m.x};
    `try mock {.m.y:20+$[null[x]~1b;0;x]; .m.trySucceded:1b; .m.y};
-   `logged mock enlist `useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(0b;0b;::;0b;0b;::;());
-   `.scientist.logger mock {[result] `logged upsert cols[logged]#result};
+   `logged mock enlist `loggingsource`useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(`;0b;0b;::;0b;0b;::;());
+   `loggertemplate mock {[loggingsource;result] `logged upsert d:(enlist[`loggingsource]!enlist loggingsource),(cols[logged] inter cols result)#result};
+   `.scientist.logger mock loggertemplate[`defaultlogger;];
 
    `.m.useSucceded`.m.trySucceded mock\: 0b;
 
@@ -134,20 +135,26 @@ validateExperiment:qspecInit {[experiment;params]
       };
 
    alt {
-      before beforesimpleNoCreate[];
+      before {
+         beforesimpleNoCreate[][];
+         `loggername mock `customlogger;
+         `customlogger mock loggertemplate[loggername;];
+         };
 
       after {
          cleanup[];
          };
 
-      should["allow us to specify a logging function"] {
+      should["allow user to specify a logging function"] {
          `ind1`n1 mock' .scientist.new `use`try!(use;try);
          n1[5];
          last[logged][`messages] mustmatch enlist "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
 
-         `ind2`n2 mock' .scientist.new `use`try!(use;use);
+         `ind2`n2 mock' .scientist.new `use`try`logger!(use;use;customlogger);
          n2[10];
-         last[logged][`messages] mustmatch enlist "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
+         lg:last[logged];
+         lg[`messages] mustmatch enlist "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
+         lg[`loggingsource] musteq loggername;
          };
       };
 

@@ -1,8 +1,8 @@
 \d .scientist
 
-defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`enabler!(::;::;::;::;::;~;{[stage;params]1b});
-defaults.experimentResult:``useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(::;0b;0b;::;0b;0b;::;());
 errorLogger:logger:defaults.logger:{[dict]};
+defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`logger`enabler!(::;::;::;::;::;~;::;{[stage;params]1b});
+defaults.experimentResult:``useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(::;0b;0b;::;0b;0b;::;());
 onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
    if[any (freq=0.;freq>1.);'"invalid frequency specified: must be range 0 < x <= 1"];
@@ -71,13 +71,13 @@ i.runner.try:{[experiment;params]
       ]
    };
 
-i.logResult:{[experimentResult;ind;params]
+i.logResult:{[experiment;experimentResult;ind;params]
    experimentResult[`messages],:
    enlist $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];
       i.experimentFailure[ind;params;experimentResult]
       ];
-   logger experimentResult;
+   $[null customlogger:experiment`logger;logger;customlogger] experimentResult;
    experimentResult
    };
 
@@ -88,7 +88,7 @@ i.experimentRunner:{[dummy;ind;params]
    experimentResult,:i.runner.use[experiment;params];
    experimentResult,:i.runner.try[experiment;params];
 
-   i.logResult[experimentResult;ind;params];
+   i.logResult[experiment;experimentResult;ind;params];
 
    {$[x;'y;y]}. experimentResult`useThrew`useResult
    };
