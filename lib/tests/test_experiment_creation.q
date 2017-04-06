@@ -14,14 +14,23 @@
 qspecInit:{[x;y] value string x}
 
 beforesimpleNoCreate:qspecInit {
-   `use mock {.m.x:10+$[null[x]~1b;0;x];.m.x};
-   `try mock {.m.y:20+$[null[x]~1b;0;x];.m.y};
-   `logged mock ();
-   .scientist.setLogger {logged,:enlist x};
+   `use mock {.m.x:10+$[null[x]~1b;0;x]; .m.useSucceded:1b; .m.x};
+   `try mock {.m.y:20+$[null[x]~1b;0;x]; .m.trySucceded:1b; .m.y};
+   `logged mock enlist `loggingsource`useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(`;0b;0b;::;0b;0b;::;());
+   `loggertemplate mock {[loggingsource;result] `logged upsert d:(enlist[`loggingsource]!enlist loggingsource),(cols[logged] inter cols result)#result};
+   `.scientist.logger mock loggertemplate[`defaultlogger;];
+
+   `.m.useSucceded`.m.trySucceded mock\: 0b;
 
    `errString mock "throwAnError";
+   `errorThrower mock {[p1] 'errString};
    `errors mock 0#enlist `useRan`useThrew`useResult`tryRan`tryThrew`tryResult!(0b;0b;();0b;0b;());
    `.scientist.onError mock {errors,:cols[errors]#x};
+
+   `eventSequence mock ([] event:`$(); src:`$(); params:() );
+   `enabler  mock  {[event;params] eventSequence,: (event;     `enabler         ;params); 1b};
+   `disabler mock  {[event;params] eventSequence,: (event;     `disabler        ;params); 0b};
+   `beforeRun mock {[params]       eventSequence,: (`beforeRun;`beforeRunChecker;params);   };
    };
 
 beforesimple:qspecInit {
@@ -78,11 +87,6 @@ validateExperiment:qspecInit {[experiment;params]
    alt {
       before {
          beforesimpleNoCreate[][];
-         `eventSequence mock ([] event:`$(); src:`$(); params:() );
-         `enabler  mock  {[event;params] eventSequence,: (event;     `enabler         ;params); 1b};
-         `disabler mock  {[event;params] eventSequence,: (event;     `disabler        ;params); 0b};
-         `beforeRun mock {[params]       eventSequence,: (`beforeRun;`beforeRunChecker;params);   };
-
          `ind1`n1 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;disabler)][`ind`func];
          `ind2`n2 mock' .scientist.new[`use`try`beforeRun`enabler!(use;try;beforeRun;enabler )][`ind`func];
          };
@@ -131,33 +135,34 @@ validateExperiment:qspecInit {[experiment;params]
       };
 
    alt {
-      before beforesimple[];
+      before {
+         beforesimpleNoCreate[][];
+         `loggername mock `customlogger;
+         `customlogger mock loggertemplate[loggername;];
+         };
 
       after {
          cleanup[];
-         .scientist.setLogger .scientist.defaults.logger;
          };
 
-      should["allow us to specify a logging function"] {
+      should["allow user to specify a logging function"] {
          `ind1`n1 mock' .scientist.new `use`try!(use;try);
          n1[5];
-         last[logged] mustmatch "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
+         last[logged][`messages] mustmatch enlist "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
 
-         `ind2`n2 mock' .scientist.new `use`try!(use;use);
+         `ind2`n2 mock' .scientist.new `use`try`logger!(use;use;customlogger);
          n2[10];
-         last[logged] mustmatch "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
+         lg:last[logged];
+         lg[`messages] mustmatch enlist "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
+         lg[`loggingsource] musteq loggername;
          };
       };
 
    alt {
       before {
-         `.m.useSucceded`.m.trySucceded mock\: 0b;
-         `errString mock "throwAnError";
+         beforesimpleNoCreate[][];
          `use mock {[p1] .m.useSucceded:1b};
-         `errorThrower mock {[p1] 'errString};
          `try mock errorThrower;
-         `logged mock ();
-         .scientist.setLogger {logged,:enlist x};
          };
 
       after cleanup;
@@ -169,7 +174,7 @@ validateExperiment:qspecInit {[experiment;params]
          mustnotthrow[();] n1,params;
          .m.useSucceded musteq 1b;
          .m.trySucceded musteq 0b;
-         last[logged] mustmatch "Experiment ", string[ind1], " called with parameters: ", (-3!enlist params), ".  Threw error: '", errString, "'";
+         last[logged][`messages] mustmatch enlist "Experiment ", string[ind1], " called with parameters: ", (-3!enlist params), ".  Threw error: '", errString, "'";
 
          `useThrower mock errorThrower;
          `n2 mock .scientist.new[`use`try!(useThrower;try)][`func];

@@ -1,7 +1,8 @@
 \d .scientist
 
-defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`enabler!(::;::;::;::;::;~;{[stage;params]1b});
-logger:defaults.logger:{};
+errorLogger:logger:defaults.logger:{[dict]};
+defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`logger`enabler!(::;::;::;::;::;~;::;{[stage;params]1b});
+defaults.experimentResult:``useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(::;0b;0b;::;0b;0b;::;());
 onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
    if[any (freq=0.;freq>1.);'"invalid frequency specified: must be range 0 < x <= 1"];
@@ -11,18 +12,19 @@ defaults.enablers.frequency:{[freq;stage;params]
 experiments:enlist[0N]!enlist defaults.new.opts;
 
 setLogger:{logger::x}
+setErrorLogger:{errorLogger::x}
 
 i.getLoggerMessageStub:{[id;params]
    "Experiment ", string[id], " called with parameters: ", (-3!params), "."
    };
 
+i.logComparisonFailure:{[ind;err]
+   errorLogger "Comparison for index '", string[ind], "' failed.  Error was: '", err, "'"
+   };
+
 i.compareResults:{[ind;useResult;tryResult]
    experiment:getExperiment ind;
    `comparisonRan`resultsMatch!.[{(1b;x[y;z])};(experiment`compare;useResult;tryResult);{[ind;err]i.logComparisonFailure[ind;err];00b}[ind;]]
-   };
-
-i.logComparisonFailure:{[ind;err]
-   logger "Comparison for index '", string[ind], "' failed.  Error was: '", err, "'"
    };
 
 i.getLoggerMessage:{[ind;params;experimentResult]
@@ -54,24 +56,39 @@ i.experimentFailure:{[ind;params;experimentResult]
    i.getTryErrorMessage[ind;params;experimentResult`tryResult]
    };
 
-i.experimentRunner:{[dummy;ind;params]
-   t:getExperiment ind;
-   experimentResult:1#.q;
-   experimentResult,:`useRan`useThrew`useResult!.[{(1b;0b;x . y)};(t[`use];params);{(1b;1b;x)}];
+i.runner.use:{[experiment;params]
+   `useRan`useThrew`useResult!.[{(1b;0b;x . y)};(experiment[`use];params);{(1b;1b;x)}]
+   };
 
-   experimentResult[`tryRan`tryThrew`tryResult]:
-   $[ t[`enabler][`preExperiment;params];
-      $[beforeRunResult:first @[{(1b;value x)};(t[`beforeRun];params);0b];
-         .[{(1b;0b;x . y)};(t[`try];params);{(1b;1b;x)}];
-         (0b;0b;())
+i.runner.try:{[experiment;params]
+   `tryRan`tryThrew`tryResult!
+   $[ experiment[`enabler][`preExperiment;params];
+      $[beforeRunResult:first @[{(1b;value x)};(experiment[`beforeRun];params);0b];
+         .[{(1b;0b;x . y)};(experiment[`try];params);{(1b;1b;x)}];
+         (0b;0b;::)
          ];
-      (0b;0b;())
-      ];
+      (0b;0b;::)
+      ]
+   };
 
-   logger $[not any experimentResult`useThrew`tryThrew;
+i.logResult:{[experiment;experimentResult;ind;params]
+   experimentResult[`messages],:
+   enlist $[not any experimentResult`useThrew`tryThrew;
       i.getLoggerMessage[ind;params;experimentResult];
       i.experimentFailure[ind;params;experimentResult]
       ];
+   $[null customlogger:experiment`logger;logger;customlogger] experimentResult;
+   experimentResult
+   };
+
+i.experimentRunner:{[dummy;ind;params]
+   experiment:getExperiment ind;
+
+   experimentResult:defaults.experimentResult;
+   experimentResult,:i.runner.use[experiment;params];
+   experimentResult,:i.runner.try[experiment;params];
+
+   i.logResult[experiment;experimentResult;ind;params];
 
    {$[x;'y;y]}. experimentResult`useThrew`useResult
    };
