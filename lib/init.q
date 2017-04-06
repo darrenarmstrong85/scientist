@@ -1,7 +1,7 @@
 \d .scientist
 
 errorLogger:logger:defaults.logger:{[dict]};
-defaults.new.opts:`use`try`preInit`onError`beforeRun`compare`logger`enabler!(::;::;::;::;::;~;::;{[stage;params]1b});
+defaults.new.opts:`name`use`try`preInit`onError`beforeRun`compare`logger`enabler!(::;::;::;::;::;::;~;::;{[stage;params]1b});
 defaults.experimentResult:``useRan`useThrew`useResult`tryRan`tryThrew`tryResult`messages!(::;0b;0b;::;0b;0b;::;());
 onError:defaults.new.opts.onError;
 defaults.enablers.frequency:{[freq;stage;params]
@@ -101,9 +101,11 @@ new:{[p_opts]
    opts[`enabler][`init;(::)];
    opts[`preInit][];
    nextkey:1+0|max key experiments;
+
+   name:$[null name:opts`name;nextkey;name];
    experiments[nextkey;c]:opts[c:cols value experiments];
    newfunc:createExperiment[nextkey];
-   `ind`func!(nextkey;newfunc)
+   `ind`func`name!(nextkey;newfunc;name)
    }
 
 getExperiment:{[ind]

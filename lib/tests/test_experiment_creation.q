@@ -35,7 +35,7 @@ beforesimpleNoCreate:qspecInit {
 
 beforesimple:qspecInit {
    beforesimpleNoCreate[][];
-   `ind`n mock' .scientist.new[`use`try!(use;try)]`ind`func;
+   `ind`n`name mock' .scientist.new[`use`try!(use;try)]`ind`func`name;
    };
 
 beforesimpleNoCreateTryThrows:qspecInit {
@@ -75,6 +75,24 @@ validateExperiment:qspecInit {[experiment;params]
    should["allow you to create an experiment 'object'"]{
       count[value[n]1] musteq count[value[use]1];
       eval[(n;1)] musteq eval (use;1);
+      };
+
+   alt {
+      before beforesimpleNoCreate[];
+
+      after cleanup;
+
+      should["allow user to pass a name for experiments"] {
+         `name mock `testname;
+         `experiment mock .scientist.new[`use`try`name!(use;try;name)];
+         experiment[`name] musteq name;
+         };
+
+      should["return internal reference as name of ewxperiment if none provided"] {
+         `experiment mock .scientist.new[`use`try!(use;try)];
+         experiment[`ind] musteq experiment[`name];
+         null[experiment`name] mustmatch 0b;
+         };
       };
 
    should["always call both funcs when no enabler specified"] {
@@ -146,11 +164,11 @@ validateExperiment:qspecInit {[experiment;params]
          };
 
       should["allow user to specify a logging function"] {
-         `ind1`n1 mock' .scientist.new `use`try!(use;try);
+         `ind1`n1 mock' .scientist.new[`use`try!(use;try)][`ind`func];
          n1[5];
          last[logged][`messages] mustmatch enlist "Experiment ",string[ind1]," called with parameters: ,5.  Result: did not match.  Expected value: 15.  Experiment value: 25";
 
-         `ind2`n2 mock' .scientist.new `use`try`logger!(use;use;customlogger);
+         `ind2`n2 mock' .scientist.new[`use`try`logger!(use;use;customlogger)][`ind`func];
          n2[10];
          lg:last[logged];
          lg[`messages] mustmatch enlist "Experiment ",string[ind2]," called with parameters: ,10.  Result: matched";
