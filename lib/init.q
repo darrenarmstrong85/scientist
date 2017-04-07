@@ -102,12 +102,12 @@ new:{[p_opts]
    opts[`preInit][];
    nextkey:1+0|max key experiments;
 
-   name:$[null name:opts`name;nextkey;name];
+   opts[`name]:name:$[null name:opts`name;nextkey;name];
    experiments[nextkey;c]:opts[c:cols value experiments];
    newfunc:createExperiment[nextkey];
    `ind`func`name!(nextkey;newfunc;name)
    }
 
-getExperiment:{[ind]
-   $[ind in key experiments; experiments@ind; '"Could not find experiment: ",ind]
+getExperiment:{[name]
+   $[null ind:experiments[;`name]?name; '"Could not find experiment: '",(-3!name),"'"; experiments@ind]
    }

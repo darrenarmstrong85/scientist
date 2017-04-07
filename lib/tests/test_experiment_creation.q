@@ -58,13 +58,15 @@ isFunc:qspecInit {
    type[x] mustin funcTypes:100 101 102 103 104 105 106 107 108 109 110 111 112h
    };
 
-validateExperiment:qspecInit {[experiment;params]
+validateExperiment:qspecInit {[name;params]
+   experiment:.scientist.getExperiment name;
    type[experiment] musteq 99h;
 
-   requiredKeys:`use`try`preInit`onError`compare`enabler;
+   requiredKeys:`name`use`try`preInit`onError`compare`enabler;
    requiredKeys mustin key experiment;
 
-   isFunc[] each experiment`requiredKeys;
+   experiment[`name] mustmatch name;
+   isFunc[] each experiment[requiredKeys except `name];
    };
 
 .tst.desc["Scientist API"] {
@@ -298,10 +300,15 @@ validateExperiment:qspecInit {[experiment;params]
    };
 
 .tst.desc["Scientist utility function API"] {
-   before beforesimple[];
+   before beforesimpleNoCreate[];
    after cleanup;
 
-   should["allow user to fetch an experiment already created"] {
-      validateExperiment[][.scientist.getExperiment ind;5];
+   should["allow user to retrieve, by name, an experiment already created"] {
+      `ind`n`name mock' .scientist.new[`use`try!(use;try)]`ind`func`name;
+      validateExperiment[][name;5];
+
+      `customname mock rand `8;
+      .scientist.new `use`try`name!(use;try;customname);
+      validateExperiment[][customname;5];
       };
    };
