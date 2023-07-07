@@ -16,7 +16,7 @@ jobs:
             env
             pwd
             ls -lR
-            ln -sv $CIRCLE_WORKING_DIRECTORY/lib $QPATH/scientist
+            ln -sv /root/project/lib $QPATH/scientist
             ls -lR $CIRCLE_WORKING_DIRECTORY
             ls -lR $QPATH
             mkdir -pv $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults
