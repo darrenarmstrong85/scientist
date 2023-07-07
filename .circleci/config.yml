@@ -14,6 +14,8 @@ jobs:
         - checkout
         - run: |
             env
+            pwd
+            ls -lR
             ln -sv $CIRCLE_WORKING_DIRECTORY/lib $QPATH/scientist
             ls -lR $CIRCLE_WORKING_DIRECTORY
             ls -lR $QPATH
