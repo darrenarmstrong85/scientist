@@ -14,7 +14,7 @@ jobs:
         - checkout
         - run: |
             env
-            ln -s $CIRCLE_WORKING_DIRECTORY/lib $QPATH/scientist
+            ln -sv $CIRCLE_WORKING_DIRECTORY/lib $QPATH/scientist
             mkdir -pv $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults
             /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/result.xml
             cat $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/result.xml
