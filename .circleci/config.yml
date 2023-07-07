@@ -15,8 +15,8 @@ jobs:
         - run: |
             ln -s $CIRCLE_WORKING_DIRECTORY/lib $QPATH/scientist
             mkdir -pv $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults
-            /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > $XUNIT_FILE
-            cat $XUNIT_FILE
+            /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/result.xml
+            cat $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/result.xml
   say-hello:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
