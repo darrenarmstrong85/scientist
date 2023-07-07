@@ -20,7 +20,7 @@ jobs:
             path: $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults
             destination: results.xml
         - store_test_results:
-            path: $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults
+            path: $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/results.xml
   say-hello:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
