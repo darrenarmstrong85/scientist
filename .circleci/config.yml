@@ -14,14 +14,14 @@ jobs:
         - checkout
         - run: |
             ln -sv /root/project/lib $QPATH/scientist
-            mkdir -pv $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults
-            /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/result.xml
-            cat $CIRCLE_WORKING_DIRECTORY/circle-ci/testresults/result.xml
+            mkdir -pv circle-ci/testresults
+            /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > circle-ci/testresults/result.xml
+            cat circle-ci/testresults/result.xml
         - store_artifacts:
-            path: ${CIRCLE_WORKING_DIRECTORY}/circle-ci/testresults
+            path: circle-ci/testresults
             destination: results.xml
         - store_test_results:
-            path: ${CIRCLE_WORKING_DIRECTORY}/circle-ci/testresults/results.xml
+            path: circle-ci/testresults/results.xml
   say-hello:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
