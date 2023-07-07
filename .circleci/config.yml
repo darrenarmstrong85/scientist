@@ -18,7 +18,7 @@ jobs:
             /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > circle-ci/testresults/result.xml
             cat circle-ci/testresults/result.xml
         - store_test_results:
-            path: circle-ci/testresults/results.xml
+            path: circle-ci/testresults
   say-hello:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
