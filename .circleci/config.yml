@@ -17,9 +17,6 @@ jobs:
             mkdir -pv circle-ci/testresults
             /q/l32/q /qlibs/lib/qspec/app/spec.q lib/tests --junit > circle-ci/testresults/result.xml
             cat circle-ci/testresults/result.xml
-        - store_artifacts:
-            path: circle-ci/testresults
-            destination: results.xml
         - store_test_results:
             path: circle-ci/testresults/results.xml
   say-hello:
